@@ -820,12 +820,15 @@ def coincidence( candidates_high_freq, candidates_low_freq,
             evt_dt = evt_time.to_datetime().strftime("%Y%m%d")
             tle_file = ( "%s/%s/satelitesdb.tle" % (options.tle_path,evt_dt) )
             
-            if not os.path.exists( tle_file ) :                                    
+            if not os.path.exists( tle_file ) :                       
+               print("WARNING : file %s not found" % (tle_file))             
                tle_file = ( "%s/satelitesdb.tle" % (options.tle_path) )
                
                if not os.path.exists( tle_file ) :
-                   tle_file = ( "%s/%s_satelitesdb.tle" % (options.tle_path,evt_dt) )
-
+                   print("WARNING : file %s not found" % (tle_file))
+                   tle_file = ( "%s/%s_satelitesdb.tle" % (options.tle_path,evt_dt) )                   
+            else:
+               print("OK : file %s found ok" % (tle_file))
                
             if os.path.exists( tle_file ) :      
                satfile = ( "%.4f.txt" % mean_ux )
