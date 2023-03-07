@@ -27,10 +27,10 @@ if [[ -n "$5" && "$5" != "-" ]]; then
    auto_copy=$5
 fi
 
-data_dir="/media/msok/0754e982-0adb-4e33-80cc-f81dda1580c8/analysis/${dt_eda2}_eda2_aavs2/"
+data_dir_low="/media/msok/0754e982-0adb-4e33-80cc-f81dda1580c8/analysis/${dt_eda2}_eda2_aavs2/"
 # data_dir=
 if [[ -n "$6" && "$6" != "-" ]]; then
-   data_dir=$6
+   data_dir_low=$6
 fi
 
 low_server=eda2
@@ -38,16 +38,28 @@ if [[ -n "$7" && "$7" != "-" ]]; then
    low_server=$7
 fi
 
-high_server=aavs2
+data_dir_low="/media/msok/0754e982-0adb-4e33-80cc-f81dda1580c8/analysis/${dt_eda2}_eda2_aavs2/"
+# data_dir=
 if [[ -n "$8" && "$8" != "-" ]]; then
-   high_server=$8
+   data_dir_low=$8
+fi
+
+high_server=aavs2
+if [[ -n "$9" && "$9" != "-" ]]; then
+   high_server=$9
 fi
 
 
-if [[ ! -n ${data_dir} ]]; then
-   echo "ERROR : local data directory not specified -> cannot continue !"
+if [[ ! -n ${data_dir_low} ]]; then
+   echo "ERROR : local data directory for LOW-FREQ not specified -> cannot continue !"
    exit -1
 fi
+
+if [[ ! -n ${data_dir_high} ]]; then
+   echo "ERROR : local data directory for HIGH-FREQ not specified -> cannot continue !"
+   exit -1
+fi
+
 
 
 line=`awk -v idx=0 -v evtidx=$evtidx '{if($1!="#"){if(substr(evtidx,1,3)=="EVT"){if($1==evtidx){print $0;}}else{if(idx==evtidx){print $0;}}idx+=1;}}' ${logfile}`
@@ -78,8 +90,8 @@ if [[ -s ../high/BeamCorr/${fits_high} ]]; then
 fi
 
 if [[ (! -s ../${fits_high} || ! -s ../${reg_high} ) && $auto_copy -gt 0 ]]; then
-   echo "get_remote_file.sh ${fits_high} ${dt_aavs2} ${high_server} ${data_dir}"
-   get_remote_file.sh ${fits_high} ${dt_aavs2} ${high_server} ${data_dir}
+   echo "get_remote_file.sh ${fits_high} ${dt_aavs2} ${high_server} ${data_dir_high}"
+   get_remote_file.sh ${fits_high} ${dt_aavs2} ${high_server} ${data_dir_high}
 fi
 
 pwd
@@ -95,8 +107,8 @@ sleep 1
 
 
 if [[ ( ! -s ../low/${fits_low} || ! -s ../low/${reg_low} ) && $auto_copy -gt 0 ]]; then
-   echo "get_remote_file.sh ${fits_low} ${dt_eda2} ${low_server} ${data_dir}"
-   get_remote_file.sh ${fits_low} ${dt_eda2} ${low_server} ${data_dir}
+   echo "get_remote_file.sh ${fits_low} ${dt_eda2} ${low_server} ${data_dir_low}"
+   get_remote_file.sh ${fits_low} ${dt_eda2} ${low_server} ${data_dir_low}
 fi
 
 echo "ds9 -geometry 2000x1200  -scale zscale ../low/${fits_low} -regions load ${reg_low} -zoom to fit -grid yes -grid type publication -grid skyformat degrees -grid labels def1 no  &"
