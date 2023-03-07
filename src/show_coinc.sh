@@ -7,14 +7,14 @@ if [[ -n "$1" && "$1" != "-" ]]; then
    evtidx=$1
 fi
 
-dt_eda2=2020_04_10_ch204_corr # 2020_07_07_ch204_corr
+dt_low=2020_04_10_ch204_corr # 2020_07_07_ch204_corr
 if [[ -n "$2" && "$2" != "-" ]]; then
-   dt_eda2=$2
+   dt_low=$2
 fi
 
-dt_aavs2=${dt_eda2}
+dt_high=${dt_eda2}
 if [[ -n "$3" && "$3" != "-" ]]; then
-   dt_aavs2=$3
+   dt_high=$3
 fi
 
 logfile=coinc_eda2_aavs2.txt
@@ -27,8 +27,8 @@ if [[ -n "$5" && "$5" != "-" ]]; then
    auto_copy=$5
 fi
 
-data_dir_low="/media/msok/0754e982-0adb-4e33-80cc-f81dda1580c8/analysis/${dt_eda2}_eda2_aavs2/"
-# data_dir=
+data_dir_low="/media/msok/0754e982-0adb-4e33-80cc-f81dda1580c8/analysis/${dt_low}_eda2_aavs2/"
+# data_dir_low=`pwd`/${dt_eda2}
 if [[ -n "$6" && "$6" != "-" ]]; then
    data_dir_low=$6
 fi
@@ -38,10 +38,10 @@ if [[ -n "$7" && "$7" != "-" ]]; then
    low_server=$7
 fi
 
-data_dir_low="/media/msok/0754e982-0adb-4e33-80cc-f81dda1580c8/analysis/${dt_eda2}_eda2_aavs2/"
-# data_dir=
+data_dir_high="/media/msok/0754e982-0adb-4e33-80cc-f81dda1580c8/analysis/${dt_high}_eda2_aavs2/"
+# data_dir_high=`pwd`/${dt_aavs2}
 if [[ -n "$8" && "$8" != "-" ]]; then
-   data_dir_low=$8
+   data_dir_high=$8
 fi
 
 high_server=aavs2
@@ -49,6 +49,17 @@ if [[ -n "$9" && "$9" != "-" ]]; then
    high_server=$9
 fi
 
+low_dirname=`basename $data_dir_low`
+low_data_dir_local=${low_server}_${low_dirname}
+mkdir -p ${low_data_dir_local}
+ln -sf ${low_data_dir_local} low
+
+high_dirname=`basename $data_dir_high`
+high_data_dir_local=${high_server}_${high_dirname}
+mkdir -p ${high_data_dir_local}
+ln -sf ${high_data_dir_local} high
+
+curr_path=`pwd`
 
 if [[ ! -n ${data_dir_low} ]]; then
    echo "ERROR : local data directory for LOW-FREQ not specified -> cannot continue !"
@@ -60,6 +71,18 @@ if [[ ! -n ${data_dir_high} ]]; then
    exit -1
 fi
 
+# mkdir -p ${data_dir_low}
+# mkdir -p ${data_dir_high}
+
+echo "############################################################"
+echo "PARAMETERS:"
+echo "############################################################"
+echo "Auto :"
+echo "low_data_dir_local = $low_data_dir_local"
+echo "high_data_dir_local = $high_data_dir_local"
+echo "current_path = $curr_path"
+echo "############################################################"
+
 
 
 line=`awk -v idx=0 -v evtidx=$evtidx '{if($1!="#"){if(substr(evtidx,1,3)=="EVT"){if($1==evtidx){print $0;}}else{if(idx==evtidx){print $0;}}idx+=1;}}' ${logfile}`
@@ -69,8 +92,8 @@ line=`awk -v idx=0 -v evtidx=$evtidx '{if($1!="#"){if(substr(evtidx,1,3)=="EVT")
 fits_high=`echo $line | awk '{print $6;}'`
 fits_low=`echo $line | awk '{print $14;}'`
 
-reg_high=../${fits_high%%.fits}_cand.reg
-reg_low=../low/${fits_low%%.fits}_cand.reg
+reg_high=high/${fits_high%%.fits}_cand.reg
+reg_low=low/${fits_low%%.fits}_cand.reg
 
 #if [[ ! -s ${reg_high} ]]; then
 #   reg_high=${fits_high%%.fits}_high.reg
@@ -80,23 +103,25 @@ reg_low=../low/${fits_low%%.fits}_cand.reg
 #   reg_low=${fits_low%%.fits}_low.reg
 #fi
 
-if [[ -s ../low/BeamCorr/${fits_low} ]]; then
-   echo "ln -sf ../low/BeamCorr/${fits_low} ../low/${fits_low}"
-   ln -sf ../low/BeamCorr/${fits_low} ../low/${fits_low}
+if [[ -s low/BeamCorr/${fits_low} ]]; then
+   echo "ln -sf low/BeamCorr/${fits_low} low/${fits_low}"
+   ln -sf low/BeamCorr/${fits_low} low/${fits_low}
 fi
-if [[ -s ../high/BeamCorr/${fits_high} ]]; then
-   echo "ln -sf ../low/BeamCorr/${fits_high} ../low/${fits_high}"
-   ln -sf ../low/BeamCorr/${fits_high} ../low/${fits_high}
+if [[ -s high/BeamCorr/${fits_high} ]]; then
+   echo "ln -sf high/BeamCorr/${fits_high} high/${fits_high}"
+   ln -sf high/BeamCorr/${fits_high} high/${fits_high}
 fi
 
-if [[ (! -s ../${fits_high} || ! -s ../${reg_high} ) && $auto_copy -gt 0 ]]; then
-   echo "get_remote_file.sh ${fits_high} ${dt_aavs2} ${high_server} ${data_dir_high}"
-   get_remote_file.sh ${fits_high} ${dt_aavs2} ${high_server} ${data_dir_high}
+if [[ (! -s high/${fits_high} || ! -s ${reg_high} ) && $auto_copy -gt 0 ]]; then
+#   echo "get_remote_file.sh ${fits_high} ${dt_aavs2} ${high_server} ${data_dir_high}"
+#   get_remote_file.sh ${fits_high} ${dt_aavs2} ${high_server} ${data_dir_high}
+    echo "get_remote_file_single_station.sh ${fits_high} ${dt_high} ${high_server} ${curr_path}/${high_data_dir_local}"
+    get_remote_file_single_station.sh ${fits_high} ${dt_high} ${high_server} ${curr_path}/${high_data_dir_local}
 fi
 
 pwd
-echo "ds9 -geometry 2000x1200 -scale zscale ../${fits_high} -regions load ${reg_high} -zoom to fit -grid yes -grid type publication -grid skyformat degrees -grid labels def1 no  &"
-ds9 -geometry 2000x1200 -scale zscale ../${fits_high} -regions load ${reg_high} -zoom to fit -grid yes -grid type publication -grid skyformat degrees -grid labels def1 no  &
+echo "ds9 -geometry 2000x1200 -scale zscale high/${fits_high} -regions load ${reg_high} -zoom to fit -grid yes -grid type publication -grid skyformat degrees -grid labels def1 no  &"
+ds9 -geometry 2000x1200 -scale zscale high/${fits_high} -regions load ${reg_high} -zoom to fit -grid yes -grid type publication -grid skyformat degrees -grid labels def1 no  &
 #   -grid labels fontsize 30 -grid numerics fontsize 30  -grid axes color blue -grid numerics color black -grid format1 d.0 -grid format2 d.0 -grid axes type exterior -grid numerics type exterior \
 #   -grid tickmarks color blue -grid tickmarks no -grid border no \
 #   -grid numerics gap1 0.5 -grid numerics gap2 -0.5 \
@@ -106,13 +131,15 @@ pwd
 sleep 1
 
 
-if [[ ( ! -s ../low/${fits_low} || ! -s ../low/${reg_low} ) && $auto_copy -gt 0 ]]; then
-   echo "get_remote_file.sh ${fits_low} ${dt_eda2} ${low_server} ${data_dir_low}"
-   get_remote_file.sh ${fits_low} ${dt_eda2} ${low_server} ${data_dir_low}
+if [[ ( ! -s low/${fits_low} || ! -s low/${reg_low} ) && $auto_copy -gt 0 ]]; then
+   # echo "get_remote_file.sh ${fits_low} ${dt_eda2} ${low_server} ${data_dir_low}"
+   # get_remote_file.sh ${fits_low} ${dt_eda2} ${low_server} ${data_dir_low}
+   echo "get_remote_file_single_station.sh ${fits_low} ${dt_low} ${low_server} ${curr_path}/${low_data_dir_local}"
+   get_remote_file_single_station.sh ${fits_low} ${dt_low} ${low_server} ${curr_path}/${low_data_dir_local}
 fi
 
-echo "ds9 -geometry 2000x1200  -scale zscale ../low/${fits_low} -regions load ${reg_low} -zoom to fit -grid yes -grid type publication -grid skyformat degrees -grid labels def1 no  &"
-ds9 -geometry 2000x1200 -scale zscale ../low/${fits_low} -regions load ${reg_low} -zoom to fit  -grid yes -grid type publication -grid skyformat degrees -grid labels def1 no  &
+echo "ds9 -geometry 2000x1200  -scale zscale low/${fits_low} -regions load ${reg_low} -zoom to fit -grid yes -grid type publication -grid skyformat degrees -grid labels def1 no  &"
+ds9 -geometry 2000x1200 -scale zscale low/${fits_low} -regions load ${reg_low} -zoom to fit  -grid yes -grid type publication -grid skyformat degrees -grid labels def1 no  &
 #   -grid labels fontsize 30 -grid numerics fontsize 30  -grid axes color blue -grid numerics color black -grid format1 d.0 -grid format2 d.0 -grid axes type exterior -grid numerics type exterior \
 #   -grid tickmarks color blue -grid tickmarks no -grid border no \
 #   -grid numerics gap1 0.5 -grid numerics gap2 -0.5 \

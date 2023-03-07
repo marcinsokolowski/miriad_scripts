@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# TODO: change naming aavs2-> high (local directory)
+#       eda2 -> low 
+# as I have data where eda2 was at high-freq and aavs2 at low and the current script/naming does not handle this case well
+
 aavs2_dir="./"
 
 eda2_dir=/media/msok/0754e982-0adb-4e33-80cc-f81dda1580c8/eda2/data/2020_05_30_ch204_corr/merged
