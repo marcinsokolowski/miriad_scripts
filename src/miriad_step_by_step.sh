@@ -41,8 +41,8 @@ uvcat vis=${cal}.uv stokes=yy out=${cal}_YY.uv
 # dump cal. solutions :
 gpplt vis=${cal}_XX.uv log=pha_XX.txt yaxis=phase
 gpplt vis=${cal}_YY.uv log=pha_YY.txt yaxis=phase
-gpplt vis=${cal}_XX.uv log=amp_XX.txt yaxis=phase
-gpplt vis=${cal}_YY.uv log=amp_YY.txt yaxis=phase
+gpplt vis=${cal}_XX.uv log=amp_XX.txt yaxis=amplitude
+gpplt vis=${cal}_YY.uv log=amp_YY.txt yaxis=amplitude
 
 # 
 puthd in=${cal}.uv/interval value=365
