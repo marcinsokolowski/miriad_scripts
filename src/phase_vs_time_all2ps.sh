@@ -1,5 +1,10 @@
 # uvplt device='/cps' vis=chan_410_20231105T02????.uv  axis=time,phase stokes=xx,yy yrange=-200,200 select='antennae(19)' nxy=3,3
 
+filename="chan_410_20231105T0[0,1,2,3,4,5]????.uv"
+if [[ -n "$1" && "$1" != "-" ]]; then
+   filename="$1"
+fi
+
 mkdir -p images
 
 ant=1
@@ -12,8 +17,10 @@ do
    if [[ -s images/${ant_pdffile} ]]; then
       echo "PROGRESS : file images/${ant_pdffile} already exists -> skipped ant = $ant"
    else
-      echo "uvplt device='/cps' vis=chan_410_20231105T0[2,3,4]????.uv  axis=time,phase stokes=xx,yy yrange=-200,200 select=${ant_str} nxy=3,3"
-      uvplt device='/cps' vis=chan_410_20231105T0[2,3,4]????.uv  axis=time,phase stokes=xx,yy yrange=-200,200 select=${ant_str} nxy=3,3
+      echo "uvplt device='/cps' vis=${filename}  axis=time,phase stokes=xx,yy yrange=-200,200 select=${ant_str} nxy=3,3"
+      uvplt device='/cps' vis=${filename}  axis=time,phase stokes=xx,yy yrange=-200,200 select=${ant_str} nxy=3,3
+#       echo "uvplt device='/cps' vis=chan_410_20231105T?????5.uv  axis=time,phase stokes=xx,yy yrange=-200,200 select=${ant_str} nxy=3,3"
+#       uvplt device='/cps' vis=chan_410_20231105T?????5.uv  axis=time,phase stokes=xx,yy yrange=-200,200 select=${ant_str} nxy=3,3
    
 #   echo "mv pgplot.ps images/${ant_psfile}"
 #   mv pgplot.ps images/${ant_psfile}
