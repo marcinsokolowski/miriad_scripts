@@ -18,7 +18,8 @@ if [[ ! -s ${list_file} ]]; then
 fi
 
 # 
-for uvfitsfile in `cat ${list_file}` ; do
+for uvfitsfile in `cat ${list_file}`
+do
     src=`basename $uvfitsfile .uvfits`
     echo "Processing $uvfitsfile to ${src}.uv"
     
@@ -91,6 +92,9 @@ for uvfitsfile in `cat ${list_file}` ; do
 
        echo "puthd in=${src}_YY.uv/interval value=365"
        puthd in=${src}_YY.uv/interval value=365
+       
+       echo "puthd in=${src}.uv/interval value=365"
+       puthd in=${src}.uv/interval value=365   
     else
        # set validity of calibraton solutions to 365 days !!!
        echo "puthd in=${src}.uv/interval value=365"
@@ -104,8 +108,8 @@ for uvfitsfile in `cat ${list_file}` ; do
        fi   
 
        if [[ ! -d ${src}_YY.uv ]]; then
-          echo "uvcat vis=${src}.uv stokes=xx out=${src}_YY.uv"
-          uvcat vis=${src}.uv stokes=xx out=${src}_YY.uv
+          echo "uvcat vis=${src}.uv stokes=yy out=${src}_YY.uv"
+          uvcat vis=${src}.uv stokes=yy out=${src}_YY.uv
        fi
 
        if [[ $save_calsolutions -gt 0 ]]; then
@@ -142,4 +146,5 @@ for uvfitsfile in `cat ${list_file}` ; do
        else
           echo "WARNING : control images are not required"       
        fi
+    fi
 done
